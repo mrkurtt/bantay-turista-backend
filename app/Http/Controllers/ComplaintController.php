@@ -40,7 +40,7 @@ class ComplaintController extends Controller
 
     public function getAllComplaints() {
         try {
-            $complaints = Complaint::all();
+            $complaints = Complaint::with((["tourist"]))->get();
 
             return response()->json([
                 'status' => 'success',

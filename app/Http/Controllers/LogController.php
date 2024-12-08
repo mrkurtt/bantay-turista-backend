@@ -10,9 +10,41 @@ use App\Models\Log;
 class LogController extends Controller
 {
     public function allLogs(){
-        $logs = Log::all();
+      
         //return response()->json(['logs' => $logs]);
-        return view('log.index', ['logs' => $logs]);
+       // return view('log.index', ['logs' => $logs]);
+
+        try{
+            $logs = Log::with(['tourist', 'establishment'])->get()->map(function ($log) {
+            return [
+                'id' => $log->id,
+                'qr_code' => $log->qr_code,
+                'tourist' => [
+                    'id' => $log->tourist_id,
+                    'name' => $log->tourist->first_name.' '.$log->tourist->last_name ?? null, // Ensure null-safety
+                ],
+                'establishment' => [
+                    'id' => $log->establishment_id,
+                    'name' => $log->establishment->name ?? null,
+                ],
+                'date_time' => $log->date_time,
+                'created_at' => $log->created_at,
+                'updated_at' => $log->updated_at,
+            ];
+        });
+
+            return response()->json( [
+                'status'=>true, 
+                'message' => 'Logs fetched successfully.', 
+                'data' => $logs
+            ],  200);
+
+        } catch(\Throwable $th){
+            return response()->json([
+                'status' => false,
+                'message' => $th->getMessage()
+            ], 500);
+        }
     }
 
     public function createLog(Request $request)

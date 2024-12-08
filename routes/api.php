@@ -69,7 +69,7 @@ Route::controller(LogController::class)->prefix('v1/log')->group(function () {
 });
 
 Route::controller(ComplaintController::class)->prefix('v1/complaints')->group(function () {
-    Route::get('/list', 'allComplaints');
+    Route::get('/list', 'getAllComplaints');
     Route::get('/create', 'createComplaints');
 });
 
