@@ -78,15 +78,19 @@ class AuthController extends Controller
                     $newTourist = Tourist::create($creds);
                     $id_data['tourist_id'] = $newTourist->id;
 
-                } else if ($request->user_type == 2) {
+                } 
+
+                if ($request->user_type == 2) {
 
                     $newEstablishment =  Establishment::create($creds);
                     $id_data['establishment_id'] = $newEstablishment->id;
 
-                } else if ($request->user_type == 3) {
+                }
 
-                    Admin::create($creds);
+                if ($request->user_type == 3) {
 
+                    $newAdmin = Admin::create($creds);
+                    $id_data['admin_id'] = $newAdmin->id;
                 }
             }
 
@@ -135,22 +139,29 @@ class AuthController extends Controller
             $user = User::where('email', $request->email)->first();
             
             $id_data = ['userId' => $user->id];
+            $role = '';
 
             if($request->user_type == 1){
                 $tourist = Tourist::where('user_id', $user->id)->first();
                 $id_data['touristId'] = $tourist->id;
+                $role = 'tourist';
             }
             
-            if($request->user_type == 2){
+            else if($request->user_type == 2){
                 $establishment = Establishment::where('user_id', $user->id)->first();
                 $id_data['establishmentId'] = $establishment->id;
+                $role = 'establishment';
+            }         
+            else if($request->user_type == 3){
+                $role = 'admin';
             }         
 
             return response()->json([
                 'status' => true,
                 'id' => $id_data,
                 'message' => 'User Logged In Successfully',
-                'token' => $user->createToken("API TOKEN")->plainTextToken
+                'token' => $user->createToken("API TOKEN")->plainTextToken,
+                'role' => $role
             ], 200);
 
         } catch (\Throwable $th) {
